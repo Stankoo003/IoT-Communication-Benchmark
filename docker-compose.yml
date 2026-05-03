@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: iot_postgres
+    environment:
+      POSTGRES_DB: iot_benchmark
+      POSTGRES_USER: iot_user
+      POSTGRES_PASSWORD: iot_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/02_seed_data.sql:/docker-entrypoint-initdb.d/02_seed_data.sql
+      - ./database/real_time_data.csv:/docker-entrypoint-initdb.d/real_time_data.csv
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iot_user -d iot_benchmark"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # REST Service - ASP.NET Core (C#)
+  # ============================================
+  rest-service:
+    build: ./rest-service
+    container_name: iot_rest
+    ports:
+      - "5001:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=iot_benchmark;Username=iot_user;Password=iot_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ============================================
+  # gRPC Service - ASP.NET Core (C#)
+  # ============================================
+  grpc-service:
+    build: ./grpc-service
+    container_name: iot_grpc
+    ports:
+      - "5002:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=iot_benchmark;Username=iot_user;Password=iot_password
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ============================================
+  # GraphQL Service - Node.js + Apollo
+  # ============================================
+  graphql-service:
+    build: ./graphql-service
+    container_name: iot_graphql
+    ports:
+      - "5003:4000"
+    environment:
+      - DATABASE_URL=postgresql://iot_user:iot_password@postgres:5432/iot_benchmark
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

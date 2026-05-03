@@ -1,0 +1,32 @@
+# Dataset - prevelik za repo, preuzeti sa Kaggle-a
+*.csv
+
+# ASP.NET Core
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+.env
+
+# Docker
+.docker/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Build artifacts
+dist/
+build/
+
+# k6 results
+*.json
+*.xml
