@@ -2,7 +2,7 @@
 
 **Komparativna analiza sinhronih komunikacionih paradigmi u IoT mikroservisnim sistemima**
 
-Projekat poredi performanse tri protokola — **REST**, **gRPC** i **GraphQL** — na identičnom IoT workload-u. Sva tri servisa dijele istu PostgreSQL bazu i izlažu iste tri operacije (ingestion, selective monitoring, heavy querying), što omogućava direktno poređenje latencije, mrežnog saobraćaja i CPU/RAM zauzimanja.
+Projekat poredi performanse tri protokola — **REST**, **gRPC** i **GraphQL** — na identičnom IoT workload-u. Sva tri servisa dele istu PostgreSQL bazu i izlažu iste tri operacije (ingestion, selective monitoring, heavy querying), što omogućava direktno poređenje latencije, mrežnog saobraćaja i CPU/RAM zauzimanja.
 
 ---
 
