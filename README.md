@@ -172,9 +172,9 @@ cd IoT-Communication-Benchmark
 docker compose up --build
 ```
 
-PostgreSQL automatski učitava shemu i seed podatke iz `/database/` foldera pri prvom startu.
+PostgreSQL automatski učitava semu i seed podatke iz `/database/` foldera pri prvom startu.
 
-### Provjera
+### Provera
 
 ```bash
 docker compose ps
