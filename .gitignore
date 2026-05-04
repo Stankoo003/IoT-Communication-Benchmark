@@ -27,6 +27,5 @@ yarn-error.log
 dist/
 build/
 
-# k6 results
-*.json
-*.xml
+# k6 results output
+k6-tests/results/

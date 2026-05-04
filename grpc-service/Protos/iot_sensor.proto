@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+option csharp_namespace = "grpc_service";
+
+package iot;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+service SensorService {
+  rpc IngestReading    (IngestRequest)      returns (IngestResponse);      // Scenario A
+  rpc GetReadings      (GetReadingsRequest) returns (GetReadingsResponse);  // Scenario B
+  rpc GetLatestReading (LatestRequest)      returns (SensorReading);        // Scenario B
+  rpc GetAggregates    (AggregateRequest)   returns (AggregateResponse);    // Scenario C
+}
+
+// ── Shared message ────────────────────────────────────────────────────────────
+
+message SensorReading {
+  int64                          id          = 1;
+  google.protobuf.Timestamp      timestamp   = 2;
+  string                         device_id   = 3;
+  google.protobuf.DoubleValue    temperature = 4;
+  google.protobuf.DoubleValue    humidity    = 5;
+  google.protobuf.DoubleValue    pressure    = 6;
+  google.protobuf.Int32Value     light       = 7;
+  google.protobuf.Int32Value     sound       = 8;
+  int32                          motion      = 9;
+  google.protobuf.DoubleValue    battery     = 10;
+  string                         location    = 11;
+}
+
+// ── Scenario A ────────────────────────────────────────────────────────────────
+
+message IngestRequest {
+  google.protobuf.Timestamp   timestamp   = 1;
+  string                      device_id   = 2;
+  google.protobuf.DoubleValue temperature = 3;
+  google.protobuf.DoubleValue humidity    = 4;
+  google.protobuf.DoubleValue pressure    = 5;
+  google.protobuf.Int32Value  light       = 6;
+  google.protobuf.Int32Value  sound       = 7;
+  int32                       motion      = 8;
+  google.protobuf.DoubleValue battery     = 9;
+  string                      location    = 10;
+}
+
+message IngestResponse {
+  int64 id = 1;
+}
+
+// ── Scenario B ────────────────────────────────────────────────────────────────
+
+message GetReadingsRequest {
+  string device_id  = 1;
+  string from       = 2; // ISO 8601
+  string to         = 3;
+  int32  limit      = 4;
+}
+
+message GetReadingsResponse {
+  repeated SensorReading readings = 1;
+}
+
+message LatestRequest {
+  string device_id = 1;
+}
+
+// ── Scenario C ────────────────────────────────────────────────────────────────
+
+message AggregateRequest {
+  string device_id = 1;
+  string from      = 2;
+  string to        = 3;
+}
+
+message HourlyAggregate {
+  string hour                = 1;
+  string device_id           = 2;
+  string location            = 3;
+  double avg_temperature     = 4;
+  double avg_humidity        = 5;
+  double avg_pressure        = 6;
+  double avg_light           = 7;
+  double avg_sound           = 8;
+  int64  total_motion_events = 9;
+  double min_battery         = 10;
+  int64  reading_count       = 11;
+}
+
+message AggregateResponse {
+  repeated HourlyAggregate aggregates = 1;
+}
