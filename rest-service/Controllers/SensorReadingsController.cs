@@ -5,23 +5,18 @@ using rest_service.Services;
 namespace rest_service.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/readings")]
 [Produces("application/json")]
 public class SensorReadingsController : ControllerBase
 {
     private readonly SensorReadingService _service;
-    private readonly ILogger<SensorReadingsController> _logger;
 
-    public SensorReadingsController(SensorReadingService service,
-        ILogger<SensorReadingsController> logger)
+    public SensorReadingsController(SensorReadingService service)
     {
         _service = service;
-        _logger = logger;
     }
 
-    /// <summary>
-    /// Scenario A - Dohvata listu senzorskih ocitavanja (paginacija)
-    /// </summary>
+    // Scenario A – lista ocitavanja sa paginacijom
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<SensorReading>), 200)]
     public async Task<IActionResult> GetAll(
@@ -32,21 +27,16 @@ public class SensorReadingsController : ControllerBase
         return Ok(readings);
     }
 
-    /// <summary>
-    /// Scenario A - Upisuje novo senzorsko ocitavanje (High-Frequency Ingestion)
-    /// </summary>
+    // Scenario A – upis novog ocitavanja (High-Frequency Ingestion)
     [HttpPost]
     [ProducesResponseType(typeof(object), 201)]
-    public async Task<IActionResult> Insert([FromBody] SensorReading reading)
+    public async Task<IActionResult> Insert([FromBody] SensorReadingInput input)
     {
-        reading.Timestamp = DateTime.UtcNow;
-        var id = await _service.InsertAsync(reading);
-        return CreatedAtAction(nameof(GetAll), new { id }, new { id, message = "Reading saved" });
+        var id = await _service.InsertAsync(input);
+        return CreatedAtAction(nameof(GetAll), new { id }, new { id });
     }
 
-    /// <summary>
-    /// Scenario B - Selective Monitoring: vraca samo temperature i humidity za uredjaj
-    /// </summary>
+    // Scenario B – Selective Monitoring: samo temperature i humidity za uredjaj
     [HttpGet("selective/{deviceId}")]
     [ProducesResponseType(typeof(IEnumerable<SensorReadingSelectiveDto>), 200)]
     public async Task<IActionResult> GetSelective(string deviceId)
@@ -55,11 +45,18 @@ public class SensorReadingsController : ControllerBase
         return Ok(readings);
     }
 
-    /// <summary>
-    /// Scenario C - Heavy Querying: agregacije po satu za vremenski opseg
-    /// </summary>
+    // Poslednje ocitavanje po uredjaju
+    [HttpGet("latest")]
+    [ProducesResponseType(typeof(IEnumerable<SensorReading>), 200)]
+    public async Task<IActionResult> GetLatest()
+    {
+        var readings = await _service.GetLatestReadingsAsync();
+        return Ok(readings);
+    }
+
+    // Scenario C – Heavy Querying: agregacije po satu za vremenski opseg
     [HttpGet("aggregates")]
-    [ProducesResponseType(typeof(IEnumerable<HourlyAggregateDto>), 200)]
+    [ProducesResponseType(typeof(IEnumerable<HourlyAggregate>), 200)]
     public async Task<IActionResult> GetAggregates(
         [FromQuery] DateTime from,
         [FromQuery] DateTime to,
@@ -67,16 +64,5 @@ public class SensorReadingsController : ControllerBase
     {
         var aggregates = await _service.GetHourlyAggregatesAsync(from, to, deviceId);
         return Ok(aggregates);
-    }
-
-    /// <summary>
-    /// Vraca poslednje ocitavanje za svaki uredjaj
-    /// </summary>
-    [HttpGet("latest")]
-    [ProducesResponseType(typeof(IEnumerable<SensorReading>), 200)]
-    public async Task<IActionResult> GetLatest()
-    {
-        var readings = await _service.GetLatestReadingsAsync();
-        return Ok(readings);
     }
 }
