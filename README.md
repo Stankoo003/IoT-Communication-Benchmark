@@ -225,25 +225,49 @@ grpcurl -plaintext localhost:5002 list
 
 ### k6 load testovi
 
-Skripte u `/k6-tests/` simuliraju opterećenje od 10, 100 i 500 virtualnih korisnika. Metrike:
-
-- `http_req_duration` — prosečna i p95 latencija
-- requests/sec (RPS)
+Folder [`k6-tests/`](k6-tests/) sadrži **9 skripti** (3 protokola × 3 scenarija). Sve dele [`lib/config.js`](k6-tests/lib/config.js) — base URL-ovi i randomizovani workload generator.
 
 ```bash
-k6 run k6-tests/scenario-a-ingestion.js
+# Pojedinacni test
+k6 run k6-tests/scenario-a-rest.js
+
+# Sa parametrima — VUs i trajanje
+VUS=100 DURATION=1m k6 run k6-tests/scenario-b-graphql.js
+
+# Sve kombinacije (3 protokola × 3 scenarija × 3 nivoa VUs = 27 testova)
+./k6-tests/run-all.sh
 ```
 
-### Veličina odgovora (Postman / Wireshark)
+`run-all.sh` snima JSON summary svakog testa u `k6-tests/results/<scenario>_vus<N>.json`. Nivoi: **10, 100, 500 VUs**, default trajanje **30s** (override sa `DURATION=1m`).
 
-Poređenje payload-a za identičan skup podataka:
-- REST/GraphQL → JSON (text, human-readable, veći)
-- gRPC → Protobuf (binarni, kompaktniji)
+**Ključne metrike** koje k6 prijavljuje:
+- `http_req_duration` / `grpc_req_duration` — avg, p(95), max latencija
+- `http_reqs` — ukupan broj zahteva → **RPS** = `count / duration`
+- `data_sent` / `data_received` — wire-size payload-a (Protobuf vs JSON)
+- `checks` — pass rate validacija odgovora
 
-### CPU/RAM (docker stats)
+Thresholds postavljeni u `lib/config.js` (p95 < 2s, fail rate < 1%, checks > 99%).
+
+### Veličina payload-a
 
 ```bash
-docker stats --no-stream
+./k6-tests/payload-size.sh
 ```
 
-Opciono: Prometheus + Grafana za kontinualni monitoring tokom load testa.
+Poredi **isti workload** (10 očitavanja Device_1) preko REST / GraphQL (selektivno + sva polja) / gRPC. Za precizan Protobuf wire-size koristi `data_received` iz k6 izveštaja ili Wireshark filter `tcp.port == 5002`.
+
+### CPU/RAM monitoring
+
+```bash
+# Pokreni paralelno sa k6 testom
+./k6-tests/monitor-stats.sh > k6-tests/results/stats.csv &
+k6 run k6-tests/scenario-a-grpc.js
+kill %1
+```
+
+CSV output: `timestamp, container, cpu_perc, mem_usage, mem_perc, net_io` po sekundi za sva 4 kontejnera (REST, gRPC, GraphQL, Postgres).
+
+### Zahtevi za testiranje
+
+- [`k6`](https://k6.io/docs/getting-started/installation/) ≥ v0.49 (Protobuf well-known types autoload)
+- `grpcurl` (opciono, za payload-size script)
