@@ -1,8 +1,9 @@
 export const REST_URL = __ENV.REST_URL || 'http://localhost:5001';
 export const GRPC_HOST = __ENV.GRPC_HOST || 'localhost:5002';
-export const GRAPHQL_URL = __ENV.GRAPHQL_URL || 'http://localhost:5003/';
+export const GRAPHQL_URL = __ENV.GRAPHQL_URL || 'http://localhost:5003/graphql';
 
 export const DEVICES = Array.from({ length: 50 }, (_, i) => `Device_${i + 1}`);
+export const LOCATIONS = ['Lab', 'Outside', 'Room A', 'Room B', 'Room C'];
 
 const VUS = __ENV.VUS ? parseInt(__ENV.VUS) : 10;
 const DURATION = __ENV.DURATION || '30s';
@@ -41,6 +42,6 @@ export function randomReading(deviceId) {
     sound: Math.floor(Math.random() * 80),
     motion: Math.random() > 0.7 ? 1 : 0,
     battery: 20 + Math.random() * 80,
-    location: 'Lab',
+    location: LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)],
   };
 }
