@@ -1,8 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { REST_URL, httpOptions, randomReading } from './lib/config.js';
+import { REST_URL, makeHttpOptions, randomReading } from './lib/config.js';
 
-export const options = httpOptions;
+export const options = makeHttpOptions('rest', 'a');
 
 export default function () {
   const r = randomReading();

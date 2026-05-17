@@ -69,23 +69,6 @@ public class SensorService(IConfiguration config) : grpc_service.SensorService.S
         return response;
     }
 
-    public override async Task<SensorReading> GetLatestReading(LatestRequest request, ServerCallContext context)
-    {
-        const string sql = """
-            SELECT id, timestamp, device_id, temperature, humidity, pressure, light, sound, motion, battery, location
-            FROM latest_readings
-            WHERE device_id = @DeviceId
-            """;
-
-        await using var db = Connect();
-        var r = await db.QueryFirstOrDefaultAsync(sql, new { DeviceId = request.DeviceId });
-
-        if (r is null)
-            throw new RpcException(new Status(StatusCode.NotFound, $"Device {request.DeviceId} not found"));
-
-        return MapReading(r);
-    }
-
     // ── Scenario C: Heavy Querying ────────────────────────────────────────────
 
     public override async Task<AggregateResponse> GetAggregates(AggregateRequest request, ServerCallContext context)

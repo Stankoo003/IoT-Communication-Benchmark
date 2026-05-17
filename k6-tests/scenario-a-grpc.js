@@ -1,11 +1,11 @@
 import grpc from 'k6/net/grpc';
 import { check } from 'k6';
-import { GRPC_HOST, grpcOptions, randomReading } from './lib/config.js';
+import { GRPC_HOST, makeGrpcOptions, randomReading } from './lib/config.js';
 
 const client = new grpc.Client();
 client.load(['../grpc-service/Protos'], 'iot_sensor.proto');
 
-export const options = grpcOptions;
+export const options = makeGrpcOptions('grpc', 'a');
 
 export default function () {
   if (__ITER === 0) {

@@ -23,16 +23,6 @@ export const resolvers = {
       return rows.map(mapReading);
     },
 
-    latestReading: async (_, { deviceId }, { db }) => {
-      const { rows } = await db.query(
-        `SELECT id, timestamp, device_id, temperature, humidity, pressure, light, sound, motion, battery, location
-         FROM latest_readings
-         WHERE device_id = $1`,
-        [deviceId]
-      );
-      return rows[0] ? mapReading(rows[0]) : null;
-    },
-
     // Scenario C – Heavy Querying
     aggregates: async (_, { deviceId, from, to }, { db }) => {
       const conditions = [];

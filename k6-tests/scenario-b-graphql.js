@@ -1,8 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { GRAPHQL_URL, httpOptions, randomDevice } from './lib/config.js';
+import { GRAPHQL_URL, makeHttpOptions, randomDevice } from './lib/config.js';
 
-export const options = httpOptions;
+export const options = makeHttpOptions('graphql', 'b');
 
 const QUERY = `query Readings($d: String!, $l: Int) {
   readings(deviceId: $d, limit: $l) { timestamp temperature humidity }

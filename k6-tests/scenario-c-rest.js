@@ -1,8 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { REST_URL, httpOptions, randomDevice } from './lib/config.js';
+import { REST_URL, makeHttpOptions, randomDevice } from './lib/config.js';
 
-export const options = httpOptions;
+export const options = makeHttpOptions('rest', 'c');
 
 export default function () {
   const res = http.get(

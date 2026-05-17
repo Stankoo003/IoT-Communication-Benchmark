@@ -66,14 +66,5 @@ public class SensorReadingService
             new { From = from, To = to, DeviceId = deviceId });
     }
 
-    // Poslednje ocitavanje po uredjaju
-    public async Task<IEnumerable<SensorReading>> GetLatestReadingsAsync()
-    {
-        using var conn = _connectionFactory.CreateConnection();
-        return await conn.QueryAsync<SensorReading>(
-            @"SELECT id, timestamp, device_id, temperature, humidity,
-                     pressure, light, sound, motion, battery, location
-              FROM latest_readings
-              ORDER BY device_id");
-    }
+
 }

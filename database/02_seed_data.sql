@@ -1,7 +1,3 @@
--- ============================================
--- IoT Communication Benchmark
--- 02_seed_data.sql
--- ============================================
 
 -- Insert all unique devices (Device_1 to Device_50)
 INSERT INTO devices (device_id, location) VALUES

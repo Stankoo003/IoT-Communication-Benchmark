@@ -1,8 +1,8 @@
 import http from 'k6/http';
 import { check } from 'k6';
-import { GRAPHQL_URL, httpOptions, randomReading } from './lib/config.js';
+import { GRAPHQL_URL, makeHttpOptions, randomReading } from './lib/config.js';
 
-export const options = httpOptions;
+export const options = makeHttpOptions('graphql', 'a');
 
 const MUTATION = `mutation Ingest($d: String!, $t: Float, $h: Float, $p: Float, $l: Int, $s: Int, $m: Int, $b: Float, $loc: String) {
   ingestReading(deviceId: $d, temperature: $t, humidity: $h, pressure: $p, light: $l, sound: $s, motion: $m, battery: $b, location: $loc) { id }

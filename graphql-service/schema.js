@@ -47,8 +47,6 @@ export const typeDefs = `#graphql
       limit:    Int
     ): [SensorReading!]!
 
-    latestReading(deviceId: String!): SensorReading
-
     # Scenario C – agregacije nad velikim opsegom
     aggregates(
       deviceId: String

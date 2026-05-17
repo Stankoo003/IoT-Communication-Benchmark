@@ -8,24 +8,33 @@ export const LOCATIONS = ['Lab', 'Outside', 'Room A', 'Room B', 'Room C'];
 const VUS = __ENV.VUS ? parseInt(__ENV.VUS) : 10;
 const DURATION = __ENV.DURATION || '30s';
 
-export const httpOptions = {
-  vus: VUS,
-  duration: DURATION,
-  thresholds: {
-    http_req_failed: ['rate<0.01'],
-    http_req_duration: ['p(95)<2000'],
-    checks: ['rate>0.99'],
-  },
-};
+export function makeHttpOptions(protocol, scenario) {
+  return {
+    vus: VUS,
+    duration: DURATION,
+    tags: { protocol, scenario },
+    thresholds: {
+      http_req_failed: ['rate<0.01'],
+      http_req_duration: ['p(95)<2000'],
+      checks: ['rate>0.99'],
+    },
+  };
+}
 
-export const grpcOptions = {
-  vus: VUS,
-  duration: DURATION,
-  thresholds: {
-    grpc_req_duration: ['p(95)<2000'],
-    checks: ['rate>0.99'],
-  },
-};
+export function makeGrpcOptions(protocol, scenario) {
+  return {
+    vus: VUS,
+    duration: DURATION,
+    tags: { protocol, scenario },
+    thresholds: {
+      grpc_req_duration: ['p(95)<2000'],
+      checks: ['rate>0.99'],
+    },
+  };
+}
+
+export const httpOptions = makeHttpOptions('unknown', 'unknown');
+export const grpcOptions = makeGrpcOptions('grpc', 'unknown');
 
 export function randomDevice() {
   return DEVICES[Math.floor(Math.random() * DEVICES.length)];

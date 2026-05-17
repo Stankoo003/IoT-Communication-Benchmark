@@ -10,7 +10,6 @@ import "google/protobuf/wrappers.proto";
 service SensorService {
   rpc IngestReading    (IngestRequest)      returns (IngestResponse);      // Scenario A
   rpc GetReadings      (GetReadingsRequest) returns (GetReadingsResponse);  // Scenario B
-  rpc GetLatestReading (LatestRequest)      returns (SensorReading);        // Scenario B
   rpc GetAggregates    (AggregateRequest)   returns (AggregateResponse);    // Scenario C
 }
 
@@ -60,10 +59,6 @@ message GetReadingsRequest {
 
 message GetReadingsResponse {
   repeated SensorReading readings = 1;
-}
-
-message LatestRequest {
-  string device_id = 1;
 }
 
 // ── Scenario C ────────────────────────────────────────────────────────────────
